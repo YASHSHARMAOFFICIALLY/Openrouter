@@ -1,8 +1,16 @@
 import {Elysia} from 'elysia'
 import { AuthModel } from './models'
 import { AuthService } from './service'
+import jwt from "@elysiajs/jwt"
 
 export const app = new Elysia({prefix:"auth"})
+    .use(
+        jwt({
+            secret:process.env.JWT_SECRET!, 
+            name:"auth_token",
+            
+        })
+    )
     .post("/sign-up",async ({body})=>{
         const userId = await AuthService.signup(body.email,body.password);
         return {
@@ -18,6 +26,7 @@ export const app = new Elysia({prefix:"auth"})
         }
     })
     .post("/sign-in",async ({body})=>{
+    
         const token = await AuthService.signin(body.email,body.password)
         return {
             token
