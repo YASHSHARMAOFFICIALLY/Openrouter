@@ -6,10 +6,8 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/jwt": "^1.4.1",
-    "db": "*",
     "elysia": "latest",
-    "jsonwebtoken": "^9.0.3"
+    "db":"*"
   },
   "devDependencies": {
     "bun-types": "latest"

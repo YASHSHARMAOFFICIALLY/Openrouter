@@ -46,10 +46,8 @@
       "name": "app",
       "version": "1.0.50",
       "dependencies": {
-        "@elysiajs/jwt": "^1.4.1",
         "db": "*",
         "elysia": "latest",
-        "jsonwebtoken": "^9.0.3",
       },
       "devDependencies": {
         "bun-types": "latest",
