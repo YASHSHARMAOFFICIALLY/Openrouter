@@ -22,13 +22,15 @@ export namespace AuthModel {
 
     //3.Sign in ka Failure 
     export const SigninFailedSchema = t.Object({
-        message:t.Literal("error")
+        message:t.String()
     })
     
     export type SigninFailedSchema = typeof SigninFailedSchema.static;
 
 
     //Signup 
+
+    //1.signup ka schema
 
     export const signupSchema = t.Object({
         email:t.String(),
@@ -37,16 +39,35 @@ export namespace AuthModel {
     })
     export type signupSchema = typeof signupSchema.static
 
+
+    //2.signup ka scess ka schema
    export  const SignupResponseSchema = t.Object({
         id:t.String()
     })
-
-    export const signupFailedSchema = t.Object({
-        message:t.Literal("error")
-    })
-
     export type SignupResponseSchema = typeof SignupResponseSchema.static;
 
+    //3.Signup ka Failure ka schema 
+
+
+    export const signupFailedSchema = t.Object({
+        message:t.String()
+    })
+
+
     export type SignupFailedSchema = typeof signupFailedSchema.static;
+
+
+    //Profile ka 
+
+    export const profileResponseSchema = t.Object({
+        credits:t.Number()
+    })
+
+
+     export const profileResponseErrorSchema = t.Object({
+        message: t.String()
+    })
+
+    export type profileResponseErrorSchema = typeof profileResponseErrorSchema.static
 
 }
