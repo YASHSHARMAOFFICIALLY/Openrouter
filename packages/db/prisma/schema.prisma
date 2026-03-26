@@ -34,6 +34,8 @@ model ApiKey {
   apiKey  String @unique
   disbaled Boolean @default(false)
   deleted Boolean @default(false)
+  lastUsed DateTime?
+  creditCOnsumed Int  @default(0)
   user   User   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   converstions converstion[]
