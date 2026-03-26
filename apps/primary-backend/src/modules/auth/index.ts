@@ -16,6 +16,7 @@ export const app = new Elysia({prefix:"auth"})
 
 
     .post("/sign-up",async ({body,status})=>{
+        console.log("yash")
         try {
                     const userId = await AuthService.signup(body.email,body.password);
                      return {
@@ -40,9 +41,9 @@ export const app = new Elysia({prefix:"auth"})
 
 
 
-    .post("/sign-in",async ({body,jwt,cookie:{auth},status})=>{
+    .post("/sign-in",async ({jwt,body,status,cookie:{auth}})=>{
         const {correctCredentials,userId} = await AuthService.signin(body.email,body.password)
-        
+        console.log("yash")
         if(correctCredentials&& userId){
             const token = await jwt.sign({userId})
             if(!auth){
@@ -54,7 +55,7 @@ export const app = new Elysia({prefix:"auth"})
                 maxAge: 7 * 86400,
             })
             return {
-                message:"signed in successfully"
+               token
             }
             }else{
                 return status(403,{

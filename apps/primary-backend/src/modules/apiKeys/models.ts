@@ -65,7 +65,7 @@ export namespace ApiKeyModel {
             id:t.String(),
             apiKey:t.String(),
             name: t.String(),
-            credisConsumed: t.Number(),
+            creditsConsumed: t.Number(),
             lastUsed: t.Nullable(t.Date()),
             disabled: t.Boolean()
 
