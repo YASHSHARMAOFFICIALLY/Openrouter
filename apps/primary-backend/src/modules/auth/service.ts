@@ -1,13 +1,16 @@
 import {prisma} from "db"
+import {jwt} from "@elysiajs/jwt"
+
 export abstract class AuthService {
+
     static async signup(email:string,password:string):Promise<string>{
         console.log("Creating user...")
         const user = await prisma.user.create({
             
             data:{
                 email,
-                password,
-               name:""
+                password:await Bun.password.hash(password),
+                name:""
             }
         })
         return user.id.toString() 
@@ -15,7 +18,29 @@ export abstract class AuthService {
 
     }
     
-     static async signin(email:string,password:string):Promise<string>{
-        return "token"
+     static async signin(email:string,password:string):Promise<{correctCredentials:boolean,userId?:string}>{
+      const user = await prisma.user.findFirst({
+        where:{
+            email
+        }
+      })
+      if(!user){
+        return {correctCredentials:false}
+      }
+      if(!await Bun.password.verify(password,user.password)){
+        return {correctCredentials:false}
+      }
+      return {correctCredentials:true,userId:user.id.toString()}
      }
+
+
+    static async getUserDetail(id:number){
+        return prisma.user.findFirst({
+            where:{
+                id
+            },select:{
+                credit:true
+            }
+        })
+    }
 }
