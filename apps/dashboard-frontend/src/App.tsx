@@ -1,39 +1,42 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { APITester } from "./APITester";
-import "./index.css";
+"use client"
+import type {App} from "app";
+import "./index.css"
+import {BrowserRouter,Route,Routes} from "react-router"
+import { Signin } from "./pages/Signin";
+import { Landing } from "./pages/Landing";
+import { Dashboard } from "./pages/Dashbaord";
+import { lazy, Suspense } from "react";
+import { useState } from "react";
 
-import logo from "./logo.svg";
-import reactLogo from "./react.svg";
 
-export function App() {
+
+const BackgroundBeams = lazy(() =>
+  import("./components/ui/background-beams").then((mod) => ({
+    default: mod.BackgroundBeams,
+  }))
+);
+
+const MorphingText = lazy(() =>
+  import("./components/ui/morphing-text")
+);
+
+
+export function App(){
+
+
   return (
-    <div className="container mx-auto p-8 text-center relative z-10">
-      <div className="flex justify-center items-center gap-8 mb-8">
-        <img
-          src={logo}
-          alt="Bun Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#646cffaa] scale-120"
-        />
-        <img
-          src={reactLogo}
-          alt="React Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa] [animation:spin_20s_linear_infinite]"
-        />
-      </div>
-      <Card>
-        <CardHeader className="gap-4">
-          <CardTitle className="text-3xl font-bold">Bun + React</CardTitle>
-          <CardDescription>
-            Edit <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono">src/App.tsx</code> and save to
-            test HMR
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <APITester />
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+   <BrowserRouter>
+   <Suspense fallback={<div></div>}>
+        <Routes>
+          <Route path="/" element={<Landing/>}/>
+          <Route path="signup" element={<Signin/>}/>
+          <Route path="signin" element={<Signin />}/>
+          <Route path="dashboard" element={<Dashboard/>}/>
+        </Routes>
+      </Suspense>
+   </BrowserRouter>
+  )
 
+}
 export default App;
+

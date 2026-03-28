@@ -14,7 +14,7 @@ export abstract class ModelsService{
             id:model.id.toString(),
             name:model.name,
             slug:model.slug,
-            comapny:{
+            company:{
                 id:model.company.id.toString(),
                 name:model.company.name,
                 website:model.company.website
