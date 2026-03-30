@@ -1,7 +1,597 @@
-export function Signup(){
-    return(
-        <div>
-            signup
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import Cookies from "js-cookie";
+
+/* ─────────────────────────────────────────────
+   Types
+───────────────────────────────────────────── */
+type ToastState = { message: string; type: "error" | "success" } | null;
+
+type FieldErrors = {
+  username: boolean;
+  email: boolean;
+  password: boolean;
+};
+
+/* ─────────────────────────────────────────────
+   Shared visual primitives (mirror from Login)
+───────────────────────────────────────────── */
+const AmbientGlow = () => (
+  <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-white/[0.02] blur-[130px]" />
+    <div className="absolute -bottom-60 -right-20 h-[420px] w-[420px] rounded-full bg-white/[0.015] blur-[110px]" />
+  </div>
+);
+
+const DotGrid = () => (
+  <div
+    aria-hidden
+    className="pointer-events-none absolute inset-0"
+    style={{
+      backgroundImage:
+        "radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px)",
+      backgroundSize: "28px 28px",
+    }}
+  />
+);
+
+const PremiumBar = () => (
+  <div
+    aria-hidden
+    className="absolute left-0 right-0 top-0 h-px"
+    style={{
+      background:
+        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 40%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.25) 60%, transparent 100%)",
+    }}
+  />
+);
+
+/* ─────────────────────────────────────────────
+   Icons
+───────────────────────────────────────────── */
+const GoogleIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden>
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+  </svg>
+);
+
+const DiscordIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z" />
+  </svg>
+);
+
+const EyeIcon = ({ open }: { open: boolean }) =>
+  open ? (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+      <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  ) : (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+
+const Spinner = () => (
+  <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+    <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4z" />
+  </svg>
+);
+
+/* ─────────────────────────────────────────────
+   Password strength meter
+───────────────────────────────────────────── */
+function getPasswordStrength(password: string): {
+  score: number; // 0–4
+  label: string;
+  color: string;
+} {
+  if (!password) return { score: 0, label: "", color: "" };
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+  const clamped = Math.min(score, 4) as 0 | 1 | 2 | 3 | 4;
+  const map: Record<0 | 1 | 2 | 3 | 4, { label: string; color: string }> = {
+    0: { label: "", color: "" },
+    1: { label: "Weak", color: "bg-red-500/70" },
+    2: { label: "Fair", color: "bg-orange-400/70" },
+    3: { label: "Good", color: "bg-yellow-400/70" },
+    4: { label: "Strong", color: "bg-emerald-400/70" },
+  };
+  return { score: clamped, ...map[clamped] };
+}
+
+const PasswordStrengthMeter = ({ password }: { password: string }) => {
+  const { score, label, color } = getPasswordStrength(password);
+  if (!password) return null;
+  return (
+    <div className="mt-2 space-y-1">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
+              i <= score ? color : "bg-white/[0.07]"
+            }`}
+          />
+        ))}
+      </div>
+      {label && (
+        <p
+          className="text-[10px] text-white/30"
+          style={{ fontFamily: "'Geist Mono', monospace", letterSpacing: "0.06em" }}
+        >
+          {label}
+        </p>
+      )}
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────
+   Field component — keeps JSX DRY
+───────────────────────────────────────────── */
+interface FieldProps {
+  id: string;
+  name: string;
+  label: string;
+  type?: string;
+  placeholder: string;
+  autoComplete?: string;
+  error: boolean;
+  onClearError: () => void;
+  rightSlot?: React.ReactNode;
+  hint?: string;
+  children?: React.ReactNode; // for extra content below input (strength meter)
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const Field = ({
+  id, name, label, type = "text", placeholder, autoComplete,
+  error, onClearError, rightSlot, hint, children, value, onChange,
+}: FieldProps) => (
+  <div className="space-y-1.5">
+    <div className="flex items-center justify-between">
+      <label
+        htmlFor={id}
+        className="block text-[11px] font-medium uppercase tracking-[0.12em] text-white/35"
+        style={{ fontFamily: "'Geist Mono', monospace" }}
+      >
+        {label}
+      </label>
+      {hint && (
+        <span className="text-[10px] text-white/20" style={{ fontFamily: "'Geist Mono', monospace" }}>
+          {hint}
+        </span>
+      )}
+    </div>
+    <div className="relative">
+      <input
+        id={id}
+        name={name}
+        type={type}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => {
+          onClearError();
+          onChange?.(e);
+        }}
+        className={`focus-ring w-full rounded-lg border bg-white/[0.03] py-2.5 text-[13.5px] text-white/90 placeholder-white/20 outline-none transition-all duration-200 hover:border-white/[0.13] hover:bg-white/[0.04] focus:border-white/20 focus:bg-white/[0.05] ${
+          rightSlot ? "pl-3.5 pr-10" : "px-3.5"
+        } ${
+          error
+            ? "border-red-500/40 bg-red-500/[0.04] hover:border-red-500/50 focus:border-red-500/50"
+            : "border-white/[0.07]"
+        }`}
+        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      />
+      {rightSlot && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2">{rightSlot}</div>
+      )}
+    </div>
+    {children}
+  </div>
+);
+
+/* ─────────────────────────────────────────────
+   Main Page
+───────────────────────────────────────────── */
+export function SignupPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
+  const [errors, setErrors] = useState<FieldErrors>({ username: false, email: false, password: false });
+  const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
+  const [mounted, setMounted] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 30);
+    return () => clearTimeout(t);
+  }, []);
+
+  /* redirect if already authed */
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token) return;
+    const verify = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/verify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+        if (data.valid) navigate("/chat");
+        else Cookies.remove("token");
+      } catch {
+        Cookies.remove("token");
+      }
+    };
+    verify();
+  }, [navigate]);
+
+  const showToast = useCallback((message: string, type: "error" | "success" = "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3800);
+  }, []);
+
+  const clearError = useCallback((field: keyof FieldErrors) => {
+    setErrors((prev) => ({ ...prev, [field]: false }));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const username = (form.elements.namedItem("username") as HTMLInputElement).value.trim();
+    const email    = (form.elements.namedItem("email")    as HTMLInputElement).value.trim();
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+
+    const newErrors: FieldErrors = { username: false, email: false, password: false };
+    let hasError = false;
+
+    if (!username || username.length < 3) {
+      newErrors.username = true;
+      showToast("Username must be at least 3 characters.");
+      hasError = true;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      newErrors.username = true;
+      showToast("Username can only contain letters, numbers, and underscores.");
+      hasError = true;
+    }
+
+    if (!email || !email.includes("@") || !email.includes(".")) {
+      newErrors.email = true;
+      if (!hasError) showToast("Please enter a valid email address.");
+      hasError = true;
+    }
+
+    if (!password || password.length < 8) {
+      newErrors.password = true;
+      if (!hasError) showToast("Password must be at least 8 characters.");
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+    if (hasError) return;
+
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        Cookies.set("token", data.token, { expires: 365, sameSite: "None", secure: true, path: "/" });
+        showToast("Account created successfully.", "success");
+        setTimeout(() => navigate("/chat"), 700);
+      } else {
+        showToast(data.error || "Registration failed. Please try again.");
+      }
+    } catch {
+      showToast("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDiscordLogin = () => {
+    const CLIENT_ID  = import.meta.env.VITE_DISCORD_CLIENT_ID;
+    const REDIRECT   = `${import.meta.env.VITE_BASE_URL}/discord-callback`;
+    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify%20email`;
+  };
+
+  const handleGoogleLogin = () => {
+    // wire up @react-oauth/google's useGoogleLogin here
+    console.log("Google login");
+  };
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body, #root {
+          height: 100%;
+          background: #000;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        @keyframes pageIn {
+          from { opacity: 0; transform: translateY(18px) scale(0.99); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .card-enter { animation: pageIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+        @keyframes toastSlide {
+          from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .toast-enter { animation: toastSlide 0.22s ease both; }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:focus {
+          -webkit-box-shadow: 0 0 0 1000px #0d0d0d inset !important;
+          -webkit-text-fill-color: #e8e8e8 !important;
+          caret-color: #e8e8e8;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        .focus-ring:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(255,255,255,0.15), 0 0 0 4px rgba(255,255,255,0.05);
+        }
+
+        @keyframes shimmer {
+          from { background-position: -200% center; }
+          to   { background-position:  200% center; }
+        }
+        .oauth-shimmer:hover {
+          background: linear-gradient(
+            105deg,
+            rgba(255,255,255,0.0) 40%,
+            rgba(255,255,255,0.04) 50%,
+            rgba(255,255,255,0.0) 60%
+          );
+          background-size: 200% auto;
+          animation: shimmer 1.4s linear infinite;
+        }
+      `}</style>
+
+      <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-4 py-10">
+
+        <DotGrid />
+        <AmbientGlow />
+
+        {/* Toast */}
+        {toast && (
+          <div
+            role="alert"
+            className={`toast-enter fixed top-5 right-5 z-50 flex items-center gap-2.5 rounded-lg border px-4 py-3 shadow-2xl backdrop-blur-xl ${
+              toast.type === "success"
+                ? "border-emerald-500/20 bg-emerald-950/80 text-emerald-300"
+                : "border-red-500/20 bg-red-950/80 text-red-300"
+            }`}
+            style={{ fontFamily: "'Geist Mono', monospace", fontSize: 12, letterSpacing: "0.02em", maxWidth: 320 }}
+          >
+            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${toast.type === "success" ? "bg-emerald-400" : "bg-red-400"}`} />
+            {toast.message}
+          </div>
+        )}
+
+        {/* Card */}
+        <div
+          className={`card-enter relative w-full max-w-[400px] overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}
+        >
+          <PremiumBar />
+
+          <div className="px-8 pb-8 pt-7 sm:px-9">
+
+            {/* Back */}
+            <Link
+              to="/"
+              className="focus-ring group mb-8 inline-flex items-center gap-1.5 rounded text-[11px] font-medium uppercase tracking-[0.1em] text-white/30 transition-colors duration-200 hover:text-white/60"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden className="transition-transform duration-200 group-hover:-translate-x-0.5">
+                <path d="M7.5 2L3.5 6L7.5 10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Back
+            </Link>
+
+            {/* Header */}
+            <div className="mb-7">
+              <div className="mb-5 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06]">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M8 1L14.928 5V11L8 15L1.072 11V5L8 1Z" stroke="rgba(255,255,255,0.6)" strokeWidth="1" fill="rgba(255,255,255,0.04)" />
+                    <path d="M8 4L11.464 6V10L8 12L4.536 10V6L8 4Z" fill="rgba(255,255,255,0.15)" />
+                  </svg>
+                </div>
+                <span className="text-[13px] font-semibold tracking-tight text-white/70">
+                  YourApp
+                </span>
+              </div>
+
+              <h1 className="text-[26px] font-bold leading-[1.15] tracking-tight text-white">
+                Create your account
+              </h1>
+              <p className="mt-2 text-[13px] leading-relaxed text-white/40">
+                Get started for free. No credit card required.
+              </p>
+            </div>
+
+            {/* OAuth */}
+            <div className="mb-5 grid grid-cols-2 gap-2.5">
+              {[
+                { label: "Google",  icon: <GoogleIcon />,  onClick: handleGoogleLogin  },
+                { label: "Discord", icon: <DiscordIcon />, onClick: handleDiscordLogin },
+              ].map(({ label, icon, onClick }) => (
+                <button
+                  key={label}
+                  onClick={onClick}
+                  className="focus-ring oauth-shimmer group relative flex items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] font-medium text-white/60 transition-all duration-200 hover:border-white/[0.15] hover:text-white/90"
+                >
+                  <span className="shrink-0 text-white/50 transition-colors duration-200 group-hover:text-white/80">
+                    {icon}
+                  </span>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="relative mb-5 flex items-center gap-3">
+              <div className="h-px flex-1 bg-white/[0.06]" />
+              <span
+                className="text-[10px] uppercase tracking-[0.18em] text-white/20"
+                style={{ fontFamily: "'Geist Mono', monospace" }}
+              >
+                or
+              </span>
+              <div className="h-px flex-1 bg-white/[0.06]" />
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} noValidate className="space-y-3.5">
+
+              {/* Username */}
+              <Field
+                id="username"
+                name="username"
+                label="Username"
+                placeholder="john_doe"
+                autoComplete="username"
+                error={errors.username}
+                onClearError={() => clearError("username")}
+                hint="letters, numbers, _"
+              />
+
+              {/* Email */}
+              <Field
+                id="email"
+                name="email"
+                label="Email address"
+                type="email"
+                placeholder="you@company.com"
+                autoComplete="email"
+                error={errors.email}
+                onClearError={() => clearError("email")}
+              />
+
+              {/* Password */}
+              <Field
+                id="password"
+                name="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="min. 8 characters"
+                autoComplete="new-password"
+                error={errors.password}
+                onClearError={() => clearError("password")}
+                value={passwordValue}
+                onChange={(e) => setPasswordValue(e.target.value)}
+                rightSlot={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((p) => !p)}
+                    className="focus-ring rounded p-0.5 text-white/25 transition-colors duration-150 hover:text-white/55"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    <EyeIcon open={showPassword} />
+                  </button>
+                }
+              >
+                <PasswordStrengthMeter password={passwordValue} />
+              </Field>
+
+              {/* Terms note */}
+              <p
+                className="pt-0.5 text-[11px] leading-relaxed text-white/20"
+                style={{ fontFamily: "'Geist Mono', monospace" }}
+              >
+                By continuing, you agree to our{" "}
+                <Link to="/terms" className="text-white/35 underline underline-offset-2 hover:text-white/55 transition-colors duration-150">
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="text-white/35 underline underline-offset-2 hover:text-white/55 transition-colors duration-150">
+                  Privacy Policy
+                </Link>.
+              </p>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="focus-ring group relative mt-1 flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-white py-2.5 text-[13px] font-semibold tracking-wide text-black shadow-[0_1px_0_rgba(255,255,255,0.15)_inset] transition-all duration-200 hover:bg-white/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              >
+                {!isLoading && (
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/[0.06] to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                  />
+                )}
+                {isLoading ? (
+                  <>
+                    <Spinner />
+                    <span>Creating account…</span>
+                  </>
+                ) : (
+                  "Create account"
+                )}
+              </button>
+            </form>
+
+            {/* Footer */}
+            <p className="mt-6 text-center text-[12px] text-white/30">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="font-medium text-white/60 underline-offset-2 transition-colors duration-150 hover:text-white/90 hover:underline"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+
+          {/* Bottom edge */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 left-0 right-0 h-px"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)" }}
+          />
         </div>
-    )
+
+        {/* Fine print */}
+        <p
+          className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/15"
+          style={{ fontFamily: "'Geist Mono', monospace", letterSpacing: "0.06em" }}
+        >
+          © 2025 YourApp · All rights reserved
+        </p>
+
+      </div>
+    </>
+  );
 }
