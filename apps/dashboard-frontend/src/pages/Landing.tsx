@@ -56,29 +56,29 @@ export function Landing(){
  
 
     return(
-       <div className="overflow-hidden" style={{ backgroundColor: bgColor }}>
-      <div className="dark flex mx-auto max-w-352 h-max pb-[1rem] w-full flex-col overflow-hidden">
+       <div className="overflow-hidden " style={{ backgroundColor: bgColor }}>
+      <div className="dark flex mx-auto max-w-352 h-max pb-[1rem] w-full flex-col overflow-hidden ">
         <NavbarDemo />
         <div className="md:w-[75%] sm:w-[85%] xs:w-[85%] xss:w-[95%] flex flex-col justify-center items-center mx-auto">
-          <div className="flex flex-col mt-24 md:mt-24 h-full">
+          <div className="flex flex-col mt-24 md:mt-34 h-full">
             <div className="hero-animate-down hero-animate-delay-0 mb-6">
               <ShinyText />
             </div>
             <h1 className="hero-animate hero-animate-delay-1 max-w-[50rem] mx-auto font-semibold text-center md:text-[3.75rem] md:leading-[1.15] sm:text-5xl xs:text-4xl xss:text-3xl font-space text-white tracking-[-0.03em]">
-              Access Any Open-Source AI Model in One Place
+              The Unified Interface   For &nbsp;  LLMs
             </h1>
-            <p className="hero-animate hero-animate-delay-2 text-center font-inter text-neutral-400 sm:text-lg xss:text-base sm:w-[58%] xss:w-[90%] mx-auto mt-3 leading-relaxed font-normal">
-              Harness cutting-edge open-source AI models like OpenAI, LLaMA, Mistral, Deepseek, and 40+ more. No limits. No costs.
+            <p className="hero-animate hero-animate-delay-2 text-center font-inter text-neutral-400 sm:text-lg xss:text-base sm:w-[58%] xss:w-[90%] mx-auto mt-2 leading-relaxed font-normal">
+              Better prices, better uptime no subscriptions.
             </p>
             <div className="hero-animate hero-animate-delay-3 flex flex-wrap justify-center gap-3 mt-8">
-              <Link to="/register">
+              <Link to="/signin">
                 <button className="px-6 py-2.5 text-sm font-semibold text-black bg-white/95 hover:bg-white/85 transition-all ease-out duration-200 rounded-lg">
-                  Get Started now
+                  Get API Keys
                 </button>
               </Link>
               <Link to="/chat">
                 <button className="px-6 py-2.5 text-sm font-semibold text-neutral-300 rounded-lg border border-neutral-800 bg-[#080808] hover:border-neutral-700 hover:bg-white/[0.05] transition-all ease-out duration-200">
-                  Live Demo
+                  Explore Model 
                 </button>
               </Link>
             </div>
@@ -98,7 +98,7 @@ export function Landing(){
           </div>
           <div className="flex flex-col mt-12">
             <p className="text-neutral-600 font-inter text-xs font-semibold tracking-widest uppercase text-center mb-7">
-              Powered by Leading Open-Source Models
+              Powered by Leading  Models
             </p>
             <div className="flex flex-col justify-center">
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-6 items-center">
@@ -111,7 +111,7 @@ export function Landing(){
             </div>
           </div>
 
-          <div className="flex justify-center mt-[1rem] z-50 overflow-hidden">
+          <div className="flex justify-center mt-1 z-50 overflow-hidden">
             <div className="absolute flex justify-center pt-[4rem] w-full h-full overflow-hidden">
               <div
                 className="w-[200vw] h-[200vw] absolute lg:translate-y-16 md:translate-y-20 sm:translate-y-24 xs:translate-y-32 xss:translate-y-28 opacity-30"
@@ -204,13 +204,13 @@ export function Landing(){
           </div>
           <div className="flex px-3 md:px-0 flex-col w-full mt-40 relative z-10">
             <h2 className="text-center font-space font-semibold text-white sm:text-4xl xs:text-3xl xss:text-2xl leading-tight relative z-10 tracking-[-0.02em]">
-              Why Choose UnchainedGPT?
+              Why Choose Open Router?
             </h2>
             <p className="text-center font-inter text-neutral-400 sm:text-base xss:text-sm sm:w-[50%] mt-4 xss:w-[90%] mx-auto relative z-10">
               Experience the true potential of open-source AI without limitations.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10 w-full">
               {[
                 {
                   title: "Uncensored Access",
@@ -226,6 +226,13 @@ export function Landing(){
                   title: "Always Cutting Edge",
                   desc: "New open-source models are added within hours of release. Stay ahead with the latest tech.",
                   icon: "ri-rocket-line"
+                },
+                {
+                  
+                  title: "Instant Model Switching",
+                  desc: "Compare outputs across model in real time switch mid-converstion.Find the best model for your excat use case",
+                  icon: "ri-rocket-line"
+                
                 }
               ].map((item, i) => (
                 <div key={i} className="group px-7 py-6 rounded-xl bg-neutral-900/40 border border-neutral-800 hover:border-neutral-700 transition-colors duration-300">
@@ -305,9 +312,9 @@ export function Landing(){
             </p>
             <Reviews />
             <div className="text-center mt-7">
-              {/* <p className="text-xs text-neutral-600 uppercase tracking-wider">
+              <p className="text-xs text-neutral-600 uppercase tracking-wider">
                 * Testimonials are fictional
-              </p> */}
+              </p>
               <p className="text-xs text-neutral-800 mt-1">
                 For demonstration purposes only
               </p>
@@ -318,9 +325,9 @@ export function Landing(){
             <h2 className="text-center font-space font-semibold text-white sm:text-4xl xs:text-3xl xss:text-2xl leading-tight relative xs:w-full xss:w-[97%] z-10 tracking-[-0.02em]">
               Frequently asked questions
             </h2>
-            {/* <h4 className="text-center font-inter font-medium text-[#cccccc] sm:text-base xss:text-sm sm:w-[60%] mt-3 xss:w-[90%] mx-auto relative z-10">
+            <h4 className="text-center font-inter font-medium text-[#cccccc] sm:text-base xss:text-sm sm:w-[60%] mt-3 xss:w-[90%] mx-auto relative z-10">
               Trusted and admired globally, our platform brings innovation to users everywhere.
-            </h4> */}
+            </h4>
             <Questions />
           </div>
 
@@ -348,7 +355,7 @@ export function Landing(){
               </p>
               {/* <RainbowButton>Get Started for free</RainbowButton> */}
               <Link
-                to="/register"
+                to="/signin"
                 className="md:px-6 z-10 md:py-2 xs:px-3.5 xs:py-1.5 xss:px-3 hover:scale-[1.025] xss:py-1.5 items-center text-black xss:text-[1rem] bg-[#efefef] hover:bg-[#fdfdfd] transition-all ease-in-out rounded-md "
               >
                 Get Started for free
@@ -360,7 +367,7 @@ export function Landing(){
             className="text-center font-sora font-bold text-neutral-900 w-full overflow-hidden whitespace-nowrap select-none"
             style={{ fontSize: "min(8vw)" }}
           >
-            UnchainedGPT
+           CloseRouter 
           </p>
         </div>
         <Suspense fallback={<div></div>}>
@@ -377,5 +384,3 @@ export function Landing(){
   );
 }
 
-        
-    
