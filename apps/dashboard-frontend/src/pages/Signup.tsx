@@ -210,8 +210,9 @@ const Field = ({
    Main Page
 ───────────────────────────────────────────── */
 export function SignupPage() {
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
   const [passwordValue, setPasswordValue] = useState("");
+ 
   const [errors, setErrors] = useState<FieldErrors>({ username: false, email: false, password: false });
   const [isLoading, setIsLoading] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
@@ -428,7 +429,7 @@ export function SignupPage() {
                   </svg>
                 </div>
                 <span className="text-[13px] font-semibold tracking-tight text-white/70">
-                  YourApp
+                  CloseRouter
                 </span>
               </div>
 
@@ -526,15 +527,15 @@ export function SignupPage() {
 
               {/* Terms note */}
               <p
-                className="pt-0.5 text-[11px] leading-relaxed text-white/20"
+                className="pt-0.5 text-[11px] leading-relaxed text-white"
                 style={{ fontFamily: "'Geist Mono', monospace" }}
               >
                 By continuing, you agree to our{" "}
-                <Link to="/terms" className="text-white/35 underline underline-offset-2 hover:text-white/55 transition-colors duration-150">
+                <Link to="/terms" className="text-white underline underline-offset-2 hover:text-white/55 transition-colors duration-150">
                   Terms
                 </Link>{" "}
                 and{" "}
-                <Link to="/privacy" className="text-white/35 underline underline-offset-2 hover:text-white/55 transition-colors duration-150">
+                <Link to="/privacy" className="text-white underline underline-offset-2 hover:text-white transition-colors duration-150">
                   Privacy Policy
                 </Link>.
               </p>
@@ -567,7 +568,7 @@ export function SignupPage() {
             <p className="mt-6 text-center text-[12px] text-white/30">
               Already have an account?{" "}
               <Link
-                to="/login"
+                to="/signin"
                 className="font-medium text-white/60 underline-offset-2 transition-colors duration-150 hover:text-white/90 hover:underline"
               >
                 Sign in
@@ -585,10 +586,10 @@ export function SignupPage() {
 
         {/* Fine print */}
         <p
-          className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/15"
+          className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white"
           style={{ fontFamily: "'Geist Mono', monospace", letterSpacing: "0.06em" }}
         >
-          © 2025 YourApp · All rights reserved
+          © 2026 CloseRouter · All rights reserved
         </p>
 
       </div>
