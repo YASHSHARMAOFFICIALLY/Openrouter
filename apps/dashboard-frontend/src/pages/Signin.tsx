@@ -1,3 +1,5 @@
+
+
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -13,13 +15,8 @@ type ToastState = { message: string; type: "error" | "success" } | null;
 
 /** Subtle radial glow sitting behind the card */
 const AmbientGlow = () => (
-  <div
-    aria-hidden
-    className="pointer-events-none absolute inset-0 overflow-hidden"
-  >
-    {/* top-right warm glow */}
+  <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
     <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-white/[0.025] blur-[120px]" />
-    {/* bottom-left cool glow */}
     <div className="absolute -bottom-60 -left-20 h-[400px] w-[400px] rounded-full bg-white/[0.015] blur-[100px]" />
   </div>
 );
@@ -98,13 +95,11 @@ export function LoginPage() {
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
 
-  /* mount fade-in */
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 30);
     return () => clearTimeout(t);
   }, []);
 
-  /* token guard */
   useEffect(() => {
     const verifyToken = async () => {
       const token = Cookies.get("token");
@@ -185,17 +180,21 @@ export function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    // wire up @react-oauth/google's useGoogleLogin here
     console.log("Google login");
   };
 
   return (
     <>
-      {/* Google Fonts — Geist + Plus Jakarta Sans */}
+      {/*
+        Remaining inline <style> block only for things Tailwind can't express:
+        - @keyframe animations (pageIn, toastSlide, shimmer)
+        - ::-webkit-autofill pseudo-element styling
+        - ::-webkit-scrollbar pseudo-element styling
+        - dynamic font-family on html/body/root
+        All other rules have been replaced by Tailwind classes.
+      */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Geist+Mono:wght@300;400;500&display=swap');
-
-        *, *::before, *::after { box-sizing: border-box; }
 
         html, body, #root {
           height: 100%;
@@ -204,42 +203,18 @@ export function LoginPage() {
           -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Page entry animation ── */
         @keyframes pageIn {
           from { opacity: 0; transform: translateY(18px) scale(0.99); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .card-enter {
-          animation: pageIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-        }
+        .card-enter { animation: pageIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-        /* ── Toast ── */
         @keyframes toastSlide {
           from { opacity: 0; transform: translateY(-8px) scale(0.97); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         .toast-enter { animation: toastSlide 0.22s ease both; }
 
-        /* ── Input autofill fix ── */
-        input:-webkit-autofill,
-        input:-webkit-autofill:focus {
-          -webkit-box-shadow: 0 0 0 1000px #0d0d0d inset !important;
-          -webkit-text-fill-color: #e8e8e8 !important;
-          caret-color: #e8e8e8;
-        }
-
-        /* ── Custom scrollbar ── */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-        /* ── Focus ring ── */
-        .focus-ring:focus-visible {
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(255,255,255,0.15), 0 0 0 4px rgba(255,255,255,0.05);
-        }
-
-        /* ── Shimmer on OAuth hover ── */
         @keyframes shimmer {
           from { background-position: -200% center; }
           to   { background-position: 200% center; }
@@ -254,53 +229,69 @@ export function LoginPage() {
           background-size: 200% auto;
           animation: shimmer 1.4s linear infinite;
         }
+
+        /* Autofill override */
+        input:-webkit-autofill,
+        input:-webkit-autofill:focus {
+          -webkit-box-shadow: 0 0 0 1000px #0d0d0d inset !important;
+          -webkit-text-fill-color: #e8e8e8 !important;
+          caret-color: #e8e8e8;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
       `}</style>
 
-      {/* ── Root ── */}
+      {/* Root */}
       <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-black px-4 py-10">
 
         <DotGrid />
         <AmbientGlow />
 
-        {/* ── Toast ── */}
+        {/* Toast */}
         {toast && (
           <div
             role="alert"
-            className={`toast-enter fixed top-5 right-5 z-50 flex items-center gap-2.5 rounded-lg border px-4 py-3 shadow-2xl backdrop-blur-xl ${
+            className={`toast-enter fixed top-5 right-5 z-50 flex items-center gap-2.5 rounded-lg border px-4 py-3 shadow-2xl backdrop-blur-xl font-mono text-xs tracking-wide max-w-xs ${
               toast.type === "success"
                 ? "border-emerald-500/20 bg-emerald-950/80 text-emerald-300"
                 : "border-red-500/20 bg-red-950/80 text-red-300"
             }`}
-            style={{ fontFamily: "'Geist Mono', monospace", fontSize: 12, letterSpacing: "0.02em", maxWidth: 320 }}
+            style={{ fontFamily: "'Geist Mono', monospace", letterSpacing: "0.02em" }}
           >
             <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${toast.type === "success" ? "bg-emerald-400" : "bg-red-400"}`} />
             {toast.message}
           </div>
         )}
 
-        {/* ── Card ── */}
+        {/* Card */}
         <div
           className={`card-enter relative w-full max-w-[400px] overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_32px_80px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-opacity duration-500 ${mounted ? "opacity-100" : "opacity-0"}`}
         >
           <PremiumBar />
 
-          {/* Card inner padding */}
+          {/* Card inner */}
           <div className="px-8 pb-8 pt-7 sm:px-9">
 
-            {/* ── Back ── */}
+            {/* Back link */}
             <Link
               to="/"
-              className="focus-ring group mb-8 inline-flex items-center gap-1.5 rounded text-[11px] font-medium uppercase tracking-[0.1em] text-white/30 transition-colors duration-200 hover:text-white/60"
+              className="group mb-8 inline-flex items-center gap-1.5 rounded text-[11px] font-medium uppercase tracking-[0.1em] text-white/30 transition-colors duration-200 hover:text-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden className="transition-transform duration-200 group-hover:-translate-x-0.5">
+              <svg
+                width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden
+                className="transition-transform duration-200 group-hover:-translate-x-0.5"
+              >
                 <path d="M7.5 2L3.5 6L7.5 10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Back
             </Link>
 
-            {/* ── Header ── */}
+            {/* Header */}
             <div className="mb-7">
-              {/* logo mark */}
+              {/* Logo mark */}
               <div className="mb-5 flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.06]">
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -327,7 +318,7 @@ export function LoginPage() {
               </p>
             </div>
 
-            {/* ── OAuth Buttons ── */}
+            {/* OAuth Buttons */}
             <div className="mb-5 grid grid-cols-2 gap-2.5">
               {[
                 { label: "Google", icon: <GoogleIcon />, onClick: handleGoogleLogin },
@@ -336,7 +327,7 @@ export function LoginPage() {
                 <button
                   key={label}
                   onClick={onClick}
-                  className="focus-ring oauth-shimmer group relative flex items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] font-medium text-white/60 transition-all duration-200 hover:border-white/[0.15] hover:text-white/90"
+                  className="oauth-shimmer group relative flex items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-[13px] font-medium text-white/60 transition-all duration-200 hover:border-white/[0.15] hover:text-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15"
                 >
                   <span className="shrink-0 text-white/50 transition-colors duration-200 group-hover:text-white/80">
                     {icon}
@@ -346,7 +337,7 @@ export function LoginPage() {
               ))}
             </div>
 
-            {/* ── Divider ── */}
+            {/* Divider */}
             <div className="relative mb-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-white/[0.06]" />
               <span
@@ -358,10 +349,10 @@ export function LoginPage() {
               <div className="h-px flex-1 bg-white/[0.06]" />
             </div>
 
-            {/* ── Form ── */}
+            {/* Form */}
             <form onSubmit={handleEmailLogin} noValidate className="space-y-3.5">
 
-              {/* Email */}
+              {/* Email field */}
               <div className="space-y-1.5">
                 <label
                   htmlFor="email"
@@ -377,16 +368,16 @@ export function LoginPage() {
                   autoComplete="email"
                   placeholder="you@company.com"
                   onChange={() => setEmailError(false)}
-                  className={`focus-ring w-full rounded-lg border bg-white/[0.03] px-3.5 py-2.5 text-[13.5px] text-white/90 placeholder-white/20 outline-none transition-all duration-200 hover:border-white/[0.13] hover:bg-white/[0.04] focus:border-white/20 focus:bg-white/[0.05] ${
+                  className={`w-full rounded-lg border bg-white/[0.03] px-3.5 py-2.5 text-[13.5px] text-white/90 placeholder-white/20 outline-none transition-all duration-200 hover:bg-white/[0.04] focus:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                     emailError
                       ? "border-red-500/40 bg-red-500/[0.04] hover:border-red-500/50 focus:border-red-500/50"
-                      : "border-white/[0.07]"
+                      : "border-white/[0.07] hover:border-white/[0.13] focus:border-white/20"
                   }`}
                   style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
                 />
               </div>
 
-              {/* Password */}
+              {/* Password field */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label
@@ -411,17 +402,20 @@ export function LoginPage() {
                     autoComplete="current-password"
                     placeholder="••••••••••••"
                     onChange={() => setPasswordError(false)}
-                    className={`focus-ring w-full rounded-lg border bg-white/[0.03] py-2.5 pl-3.5 pr-10 text-[13.5px] text-white/90 placeholder-white/20 outline-none transition-all duration-200 hover:border-white/[0.13] hover:bg-white/[0.04] focus:border-white/20 focus:bg-white/[0.05] ${
+                    className={`w-full rounded-lg border bg-white/[0.03] py-2.5 pl-3.5 pr-10 text-[13.5px] text-white/90 placeholder-white/20 outline-none transition-all duration-200 hover:bg-white/[0.04] focus:bg-white/[0.05] focus-visible:ring-2 focus-visible:ring-white/15 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent ${
                       passwordError
                         ? "border-red-500/40 bg-red-500/[0.04] hover:border-red-500/50 focus:border-red-500/50"
-                        : "border-white/[0.07]"
+                        : "border-white/[0.07] hover:border-white/[0.13] focus:border-white/20"
                     }`}
-                    style={{ fontFamily: "'Geist Mono', monospace", letterSpacing: showPassword ? "0.02em" : "0.08em" }}
+                    style={{
+                      fontFamily: "'Geist Mono', monospace",
+                      letterSpacing: showPassword ? "0.02em" : "0.08em",
+                    }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((p) => !p)}
-                    className="focus-ring absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-white/25 transition-colors duration-150 hover:text-white/55"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-white/25 transition-colors duration-150 hover:text-white/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     <EyeIcon open={showPassword} />
@@ -433,10 +427,10 @@ export function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="focus-ring group relative mt-1 flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-white py-2.5 text-[13px] font-semibold tracking-wide text-black shadow-[0_1px_0_rgba(255,255,255,0.15)_inset] transition-all duration-200 hover:bg-white/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
+                className="group relative mt-1 flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg bg-white py-2.5 text-[13px] font-semibold tracking-wide text-black shadow-[0_1px_0_rgba(255,255,255,0.15)_inset] transition-all duration-200 hover:bg-white/90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
                 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
               >
-                {/* shimmer sweep */}
+                {/* Shimmer sweep — only when not loading */}
                 {!isLoading && (
                   <span
                     aria-hidden
@@ -454,7 +448,7 @@ export function LoginPage() {
               </button>
             </form>
 
-            {/* ── Footer ── */}
+            {/* Footer */}
             <p
               className="mt-6 text-center text-[12px] text-white/30"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
@@ -470,7 +464,7 @@ export function LoginPage() {
 
           </div>
 
-          {/* ── Card bottom edge — subtle gradient ── */}
+          {/* Card bottom edge */}
           <div
             aria-hidden
             className="pointer-events-none absolute bottom-0 left-0 right-0 h-px"
@@ -478,7 +472,7 @@ export function LoginPage() {
           />
         </div>
 
-        {/* ── Fine print ── */}
+        {/* Fine print */}
         <p
           className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-white/15"
           style={{ fontFamily: "'Geist Mono', monospace", letterSpacing: "0.06em" }}
